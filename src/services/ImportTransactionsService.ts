@@ -1,8 +1,14 @@
-import Transaction from '../models/Transaction';
+// import Transaction from '../models/Transaction';
+
+interface Request {
+  csvFile: string;
+}
 
 class ImportTransactionsService {
-  async execute(): Promise<Transaction[]> {
+  async execute({ csvFile }: Request): Promise<void> {
+    // Promise<Transaction[]> {
     // TODO
+    console.log(csvFile);
   }
 }
 
