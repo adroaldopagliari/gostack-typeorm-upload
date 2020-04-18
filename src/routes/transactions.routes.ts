@@ -9,6 +9,8 @@ import CreateTransactionService from '../services/CreateTransactionService';
 import DeleteTransactionService from '../services/DeleteTransactionService';
 import ImportTransactionsService from '../services/ImportTransactionsService';
 
+import AppError from '../errors/AppError';
+
 const transactionsRouter = Router();
 const upload = multer(UploadConfig);
 
@@ -38,6 +40,15 @@ transactionsRouter.post('/', async (request, response) => {
   // TODO
   const { title, value, type, category } = request.body;
 
+  if (type === 'outcome') {
+    const transactionsRepository = getCustomRepository(TransactionsRepository);
+    const transactionsBalance = await transactionsRepository.getBalance();
+
+    if (transactionsBalance.total < value) {
+      throw new AppError('Outcome value exceeds the total cash');
+    }
+  }
+
   const createTransaction = new CreateTransactionService();
 
   const transaction = await createTransaction.execute({
@@ -63,13 +74,14 @@ transactionsRouter.delete('/:id', async (request, response) => {
 
 transactionsRouter.post(
   '/import',
-  upload.single('csv_file'),
+  upload.single('file'),
   async (request, response) => {
     // TODO
     const importTransaction = new ImportTransactionsService();
-    await importTransaction.execute({ csvFile: request.file.filename });
 
-    return response.send();
+    const transactions = await importTransaction.execute(request.file.filename);
+
+    return response.json(transactions);
   },
 );
 
