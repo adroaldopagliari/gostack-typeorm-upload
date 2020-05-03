@@ -17,18 +17,18 @@ const upload = multer(UploadConfig);
 transactionsRouter.get('/', async (request, response) => {
   // TODO
   const transactionsRepository = getCustomRepository(TransactionsRepository);
-  const transactionsFields = await transactionsRepository.find({
+  const transactions = await transactionsRepository.find({
     relations: ['category'],
-    select: ['id', 'title', 'value', 'type'],
+    // select: ['id', 'title', 'value', 'type'],
   });
 
-  const transactions = transactionsFields.map(t => ({
+  /* const transactions = transactionsFields.map(t => ({
     id: t.id,
     title: t.title,
     value: t.value,
     type: t.type,
     category: t.category.title,
-  }));
+  })); */
 
   const balance = await transactionsRepository.getBalance();
   const transactionsSummary = { transactions, balance };
